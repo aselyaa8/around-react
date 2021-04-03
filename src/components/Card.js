@@ -6,7 +6,7 @@ function Card(props) {
     return (
         <div className="card">
             <button aria-label="delete" type="button" className="card__delete-button"></button>
-            <img src={props.card.link} alt="nice place" className="card__image" onClick={handleClick} />
+            <img src={props.card.link} alt={props.card.name} className="card__image" onClick={handleClick} />
             <h2 className="card__text">{props.card.name}</h2>
             <div className="card__like">
                 <button aria-label="Like" type="button" className="card__like-button card__like-button_disabled"></button>

@@ -1,3 +1,14 @@
+# Project 10: Around The U.S. created with React
+
+Author: Assel Kadyrkul 2021
+Link to project https://aselyaa8.github.io/around-react/ 
+
+**Figma**
+
+- Website's layout was made following guidlines in figma
+[Link to the project in Figma](https://www.figma.com/file/mUgu8OSHWE0M6p6vfwmdu9/Sprint-4-Around-The-U.S.-desktop-mobile?node-id=0%3A1)
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

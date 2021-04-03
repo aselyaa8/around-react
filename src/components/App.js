@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
 import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 
-
-
-
 function App() {
-
 
   function handleEditAvatarClick() {
     setEditAvatarModalOpen(true);
   }
 
-  function handleEditProfileClick() {
+  function handleEditProfileClick(userName, userDescription) {
     setEditProfileModalOpen(true);
   }
 
@@ -47,10 +42,28 @@ function App() {
         onEditAvatar={handleEditAvatarClick}
         onCardClick={handleCardClick} />
       <Footer />
-      
-      <PopupWithForm isOpen={isEditProfileModalOpen} onClose={handleCloseAllModals} title={"Edit profile"} name="edit" />
-      <PopupWithForm isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} title={"New place"} name="add" />
-      <PopupWithForm isOpen={isEditAvatarModalOpen} onClose={handleCloseAllModals} title={"Change profile picture"} name="avatar-edit" />
+
+      <PopupWithForm isOpen={isEditProfileModalOpen} onClose={handleCloseAllModals} title={"Edit profile"} name="edit" >
+        <input id="name-input" type="text" name="name" className="form__input form__input_type_name" minLength="2"
+          maxLength="40" placeholder="Name" required />
+        <span id="name-input-error" className="form__input-error"></span>
+        <input id="description-input" type="text" name="about" className="form__input form__input_type_description"
+          minLength="2" maxLength="200" placeholder="About" required />
+        <span id="description-input-error" className="form__input-error"></span>
+      </PopupWithForm>
+      <PopupWithForm isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} title={"New place"} name="add" inputOne={"Title"} inputTwo={"Image link"} >
+        <input id="name-input" type="text" name="name" className="form__input form__input_type_name" minLength="2"
+          maxLength="40" placeholder="Title" required />
+        <span id="name-input-error" className="form__input-error"></span>
+        <input id="description-input" type="url" name="about" className="form__input form__input_type_description"
+          minLength="2" maxLength="200" placeholder="Image link" required />
+        <span id="description-input-error" className="form__input-error"></span>
+      </PopupWithForm>
+      <PopupWithForm isOpen={isEditAvatarModalOpen} onClose={handleCloseAllModals} title={"Change profile picture"} name="avatar-edit">
+        <input id="description-input" type="url" name="about" className="form__input form__input_type_description"
+          minLength="2" maxLength="200" placeholder="url" required />
+        <span id="description-input-error" className="form__input-error"></span>
+      </PopupWithForm>
 
       <ImagePopup card={selectedCard} onClose={handleCloseAllModals} />
 
