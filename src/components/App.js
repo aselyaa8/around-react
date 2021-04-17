@@ -2,29 +2,64 @@ import React, { useState, useEffect } from 'react';
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
-import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 import api from "../utils/api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import EditProfilePopup from "./EditProfilePopup";
+import EditAvatarPopup from "./EditAvatarPopup";
+import AddPlacePopup from "./AddPlacePopup";
+
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
+  const [isEditProfileModalOpen, setEditProfileModalOpen] = useState(false);
+  const [isAddPlaceModalOpen, setAddPlaceModalOpen] = useState(false);
+  const [isEditAvatarModalOpen, setEditAvatarModalOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState({});
+  const [cards, setCards] = useState([]);
 
   useEffect(() => {
     api.getUserInfo().then((res) => {
       setCurrentUser(res);
-      console.log(currentUser)
     }).catch((err) => {
       console.log(err);
     });
-
   }, []);
+
+  useEffect(() => {
+    api.getInitialCards().then((res) => {
+      const initialCards = res.map((card) => { return card });
+      setCards(initialCards);
+    }).catch((err) => {
+      console.log(err);
+    });
+  }, []);
+  function handleCardLike(card) {
+    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    if (isLiked) {
+      api.removeLike(card._id).then((newCard) => {
+        setCards(cards.map((c) => {
+          return c._id === newCard._id ? newCard : c
+        }))
+      }).catch((err) => {
+        console.log(err);
+      });
+    } else {
+      api.addLike(card._id).then((newCard) => {
+        setCards(cards.map((c) => {
+          return c._id === newCard._id ? newCard : c
+        }))
+      }).catch((err) => {
+        console.log(err);
+      });
+    }
+  }
 
   function handleEditAvatarClick() {
     setEditAvatarModalOpen(true);
   }
 
-  function handleEditProfileClick(userName, userDescription) {
+  function handleEditProfileClick() {
     setEditProfileModalOpen(true);
   }
 
@@ -42,11 +77,44 @@ function App() {
   function handleCardClick({ name, link }) {
     setSelectedCard({ name, link });
   }
-  const [isEditProfileModalOpen, setEditProfileModalOpen] = useState(false);
-  const [isAddPlaceModalOpen, setAddPlaceModalOpen] = useState(false);
-  const [isEditAvatarModalOpen, setEditAvatarModalOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState({});
 
+  function handleUpdateUser({ name, about }) {
+    api.updateUserInfo({ name, about }).then((res) => {
+      setCurrentUser(res);
+      handleCloseAllModals();
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
+  function handleUpdateUserAvatar(avatar) {
+    api.updateUserAvatar(avatar).then((res) => {
+      setCurrentUser(res);
+      handleCloseAllModals();
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
+  function handleCardDelete(card) {
+    api.deleteCard(card._id).then(() => {
+      setCards(cards.filter((c) => {
+        return c._id !== card._id;
+      }))
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
+  function handleAddPlace(card){
+    api.postCard(card).then((newCard)=>{
+      setCards([newCard, ...cards]);
+      handleCloseAllModals();
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+  
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
@@ -54,42 +122,17 @@ function App() {
         <Main onEditProfile={handleEditProfileClick}
           onAddPlace={handleAddPlaceClick}
           onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick} />
+          onCardClick={handleCardClick}
+          cards={cards}
+          handleCardLike={handleCardLike}
+          handleCardDelete={handleCardDelete} />
         <Footer />
 
-        <PopupWithForm isOpen={isEditProfileModalOpen} onClose={handleCloseAllModals} title={"Edit profile"} name="edit" >
-          <input id="name-input" type="text" name="name" className="form__input form__input_type_name" minLength="2"
-            maxLength="40" placeholder="Name" required />
-          <span id="name-input-error" className="form__input-error"></span>
-          <input id="description-input" type="text" name="about" className="form__input form__input_type_description"
-            minLength="2" maxLength="200" placeholder="About" required />
-          <span id="description-input-error" className="form__input-error"></span>
-        </PopupWithForm>
-        <PopupWithForm isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} title={"New place"} name="add" inputOne={"Title"} inputTwo={"Image link"} >
-          <input id="name-input" type="text" name="name" className="form__input form__input_type_name" minLength="2"
-            maxLength="40" placeholder="Title" required />
-          <span id="name-input-error" className="form__input-error"></span>
-          <input id="description-input" type="url" name="about" className="form__input form__input_type_description"
-            minLength="2" maxLength="200" placeholder="Image link" required />
-          <span id="description-input-error" className="form__input-error"></span>
-        </PopupWithForm>
-        <PopupWithForm isOpen={isEditAvatarModalOpen} onClose={handleCloseAllModals} title={"Change profile picture"} name="avatar-edit">
-          <input id="description-input" type="url" name="about" className="form__input form__input_type_description"
-            minLength="2" maxLength="200" placeholder="url" required />
-          <span id="description-input-error" className="form__input-error"></span>
-        </PopupWithForm>
-
+        <EditProfilePopup isOpen={isEditProfileModalOpen} onClose={handleCloseAllModals} onUpdateUser={handleUpdateUser} />
+        <EditAvatarPopup isOpen={isEditAvatarModalOpen} onClose={handleCloseAllModals} onUpdateUserAvatar={handleUpdateUserAvatar} />
+        <AddPlacePopup isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} onAddPlace={handleAddPlace}/>
         <ImagePopup card={selectedCard} onClose={handleCloseAllModals} />
-
-        <div className="modal modal-delete-confirm">
-          <div className="modal__container">
-            <form className="form form-delete-confirm" name="delete-confirm">
-              <h2 className="form__heading">Are you sure?</h2>
-              <button aria-label="delete-confirm" type="submit" className="form__save-button">Yes</button>
-            </form>
-            <button aria-label="Close" type="button" className="modal__close-button"></button>
-          </div>
-        </div>
+        
       </div>
     </CurrentUserContext.Provider>
   );
