@@ -28,8 +28,7 @@ function App() {
 
   useEffect(() => {
     api.getInitialCards().then((res) => {
-      const initialCards = res.map((card) => { return card });
-      setCards(initialCards);
+      setCards(res);
     }).catch((err) => {
       console.log(err);
     });
@@ -106,15 +105,15 @@ function App() {
     });
   }
 
-  function handleAddPlace(card){
-    api.postCard(card).then((newCard)=>{
+  function handleAddPlace(card) {
+    api.postCard(card).then((newCard) => {
       setCards([newCard, ...cards]);
       handleCloseAllModals();
     }).catch((err) => {
       console.log(err);
     });
   }
-  
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
@@ -130,9 +129,9 @@ function App() {
 
         <EditProfilePopup isOpen={isEditProfileModalOpen} onClose={handleCloseAllModals} onUpdateUser={handleUpdateUser} />
         <EditAvatarPopup isOpen={isEditAvatarModalOpen} onClose={handleCloseAllModals} onUpdateUserAvatar={handleUpdateUserAvatar} />
-        <AddPlacePopup isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} onAddPlace={handleAddPlace}/>
+        <AddPlacePopup isOpen={isAddPlaceModalOpen} onClose={handleCloseAllModals} onAddPlace={handleAddPlace} />
         <ImagePopup card={selectedCard} onClose={handleCloseAllModals} />
-        
+
       </div>
     </CurrentUserContext.Provider>
   );
